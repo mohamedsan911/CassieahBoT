@@ -14,7 +14,7 @@ export const meta: CommandMeta = {
 };
 
 export const style: CommandStyle = {
-  title: "📥 **Facebook Downloader**",
+  title: "📥 Facebook Downloader",
   titleFont: "bold",
   contentFont: "fancy",
 };
@@ -41,6 +41,7 @@ export async function entry({
   threadsDB,
   args,
 }: CommandContext) {
+  output.setStyle(style);
   if (!input.isAdmin) {
     return output.reply("You cannot enable/disable this feature.");
   }
@@ -55,6 +56,7 @@ export async function entry({
 }
 
 export async function event({ output, input, threadsDB }: CommandContext) {
+  output.setStyle(style);
   try {
     const cache = await threadsDB.getCache(input.threadID);
     if (cache.autodl === false) {
