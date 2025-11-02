@@ -778,6 +778,54 @@ export class CanvCass implements CanvCass.Rect {
   }
 
   splitBreak(style: CanvCass.MeasureTextParam, maxW: number) {
+    const lines: string[] = [];
+    const paragraphs = style.text.split("\n");
+
+    for (const paragraph of paragraphs) {
+      let words = paragraph.split(" ");
+      let currentLine = "";
+      let accuW = 0;
+
+      for (let word of words) {
+        let wordWidth = this.measureText({ ...style, text: word }).width;
+
+        while (wordWidth > maxW) {
+          let splitIndex = word.length;
+          while (splitIndex > 0) {
+            const part = word.slice(0, splitIndex) + "-";
+            const partWidth = this.measureText({ ...style, text: part }).width;
+            if (partWidth <= maxW) break;
+            splitIndex--;
+          }
+
+          const part = word.slice(0, splitIndex) + "-";
+          lines.push(currentLine ? currentLine + " " + part : part);
+          currentLine = "";
+          word = word.slice(splitIndex);
+          wordWidth = this.measureText({ ...style, text: word }).width;
+        }
+
+        const addSpace = currentLine ? " " : "";
+        const totalWidth =
+          accuW + this.measureText({ ...style, text: addSpace + word }).width;
+
+        if (totalWidth > maxW) {
+          if (currentLine) lines.push(currentLine);
+          currentLine = word;
+          accuW = this.measureText({ ...style, text: word }).width;
+        } else {
+          currentLine += addSpace + word;
+          accuW = totalWidth;
+        }
+      }
+
+      if (currentLine) lines.push(currentLine);
+    }
+
+    return lines;
+  }
+
+  splitBreakOld(style: CanvCass.MeasureTextParam, maxW: number) {
     let accuW = 0;
     const text = style.text;
     let words: string[] = [];
